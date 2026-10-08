@@ -7,14 +7,14 @@
 ## Pair Programming
 | Misión | Driver | Navigator | Commit / evidencia |
 |---|---|---|---|
-| 04 | Abril | Natalia | |
-| 05 | Natalia | Abril | |
-| 06 | Abril | Natalia | |
-| 07 | Natalia | Abril | |
-| 08 | Abril | Natalia | |
-| 09 | Natalia | Abril | |
-| 10 | Abril | Natalia | |
-| 11 | Natalia | Abril | |
+| 04 | Natalia | Abril | |
+| 05 | Abril | Natalia | |
+| 06 | Natalia | Abril | |
+| 07 | Abril | Natalia | |
+| 08 | Natalia | Abril | |
+| 09 | Abril | Natalia | |
+| 10 | Natalia | Abril | |
+| 11 | Abril | Natalia | |
 
 ## Objetivo
 Completar una aplicación frontend que consuma Frankfurter API para convertir divisas y demostrar comprensión de eventos, DOM, `fetch()`, JSON, asincronía, validación y manejo de errores.
