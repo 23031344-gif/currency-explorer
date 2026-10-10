@@ -37,7 +37,9 @@ async function convertirMoneda() {
   const url = `https://api.frankfurter.dev/v2/rate/${monedaOrigen}/${monedaDestino}`;
 
   try {
-    // TODO · MISIÓN 08: activar un estado visual de carga antes de consultar.
+    // MISIÓN 08: estado de carga mientras se espera la respuesta de la API.
+    setCargando(true);
+
     const respuesta = await fetch(url);
 
     // TODO · MISIÓN 09: comprobar response.ok y lanzar un error si corresponde.
@@ -45,6 +47,7 @@ async function convertirMoneda() {
 
     const conversion = valor * datos.rate;
 
+    // MISIÓN 05: resultado formateado con separador de miles y 2 decimales.
     const formato = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
 
     resultado.classList.remove("error");
@@ -54,20 +57,21 @@ async function convertirMoneda() {
       `1 ${monedaOrigen} = ${datos.rate} ${monedaDestino} · Actualizado: ${datos.date}`;
 
   } catch (error) {
-
-  } catch (error) {
     // TODO · MISIÓN 09: mejora el mensaje y analiza qué errores pueden llegar aquí.
     mostrarError("No fue posible completar la consulta.");
     console.error(error);
+  } finally {
+    // MISIÓN 08: se ejecuta siempre (éxito o error) para reactivar los botones.
+    setCargando(false);
   }
 }
 
+// MISIÓN 06: intercambiar monedas y recalcular.
 function intercambiarMonedas() {
-  // TODO · MISIÓN 06:
-  // 1) guardar temporalmente el valor de origen
-  // 2) intercambiar origen.value y destino.value
-  // 3) volver a calcular
-  mostrarError("Misión 06 pendiente: implementa el intercambio de monedas.");
+  const temporal = origen.value;   // 1) guardar temporalmente el valor de origen
+  origen.value = destino.value;    // 2) origen toma el valor de destino
+  destino.value = temporal;        //    destino toma el valor guardado
+  convertirMoneda();               // 3) volver a calcular con las monedas invertidas
 }
 
 // 4. UTILIDADES DE INTERFAZ
@@ -75,6 +79,19 @@ function mostrarError(mensaje) {
   resultado.classList.add("error");
   resultadoTexto.textContent = mensaje;
   detalleTasa.textContent = "Revisa los datos e inténtalo nuevamente.";
+}
+
+// MISIÓN 08: activa o desactiva el estado visual de carga.
+function setCargando(cargando) {
+  btnConvertir.disabled = cargando;
+  btnIntercambiar.disabled = cargando;
+  btnConvertir.textContent = cargando ? "Consultando..." : "Convertir";
+
+  if (cargando) {
+    resultado.classList.remove("error");
+    resultadoTexto.textContent = "Consultando...";
+    detalleTasa.textContent = "Obteniendo el tipo de cambio desde la API.";
+  }
 }
 
 // PISTA PARA EL RETO:
