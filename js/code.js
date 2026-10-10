@@ -45,6 +45,7 @@ async function convertirMoneda() {
 
     const conversion = valor * datos.rate;
 
+    // MISIÓN 05: resultado formateado con separador de miles y 2 decimales.
     const formato = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
 
     resultado.classList.remove("error");
@@ -54,20 +55,18 @@ async function convertirMoneda() {
       `1 ${monedaOrigen} = ${datos.rate} ${monedaDestino} · Actualizado: ${datos.date}`;
 
   } catch (error) {
-
-  } catch (error) {
     // TODO · MISIÓN 09: mejora el mensaje y analiza qué errores pueden llegar aquí.
     mostrarError("No fue posible completar la consulta.");
     console.error(error);
   }
 }
 
+// MISIÓN 06: intercambiar monedas y recalcular.
 function intercambiarMonedas() {
-  // TODO · MISIÓN 06:
-  // 1) guardar temporalmente el valor de origen
-  // 2) intercambiar origen.value y destino.value
-  // 3) volver a calcular
-  mostrarError("Misión 06 pendiente: implementa el intercambio de monedas.");
+  const temporal = origen.value;   // 1) guardar temporalmente el valor de origen
+  origen.value = destino.value;    // 2) origen toma el valor de destino
+  destino.value = temporal;        //    destino toma el valor guardado
+  convertirMoneda();               // 3) volver a calcular con las monedas invertidas
 }
 
 // 4. UTILIDADES DE INTERFAZ
