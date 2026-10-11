@@ -37,7 +37,9 @@ async function convertirMoneda() {
   const url = `https://api.frankfurter.dev/v2/rate/${monedaOrigen}/${monedaDestino}`;
 
   try {
-    // TODO · MISIÓN 08: activar un estado visual de carga antes de consultar.
+    // MISIÓN 08: estado de carga mientras se espera la respuesta de la API.
+    setCargando(true);
+
     const respuesta = await fetch(url);
 
     // TODO · MISIÓN 09: comprobar response.ok y lanzar un error si corresponde.
@@ -58,6 +60,9 @@ async function convertirMoneda() {
     // TODO · MISIÓN 09: mejora el mensaje y analiza qué errores pueden llegar aquí.
     mostrarError("No fue posible completar la consulta.");
     console.error(error);
+  } finally {
+    // MISIÓN 08: se ejecuta siempre (éxito o error) para reactivar los botones.
+    setCargando(false);
   }
 }
 
@@ -74,6 +79,19 @@ function mostrarError(mensaje) {
   resultado.classList.add("error");
   resultadoTexto.textContent = mensaje;
   detalleTasa.textContent = "Revisa los datos e inténtalo nuevamente.";
+}
+
+// MISIÓN 08: activa o desactiva el estado visual de carga.
+function setCargando(cargando) {
+  btnConvertir.disabled = cargando;
+  btnIntercambiar.disabled = cargando;
+  btnConvertir.textContent = cargando ? "Consultando..." : "Convertir";
+
+  if (cargando) {
+    resultado.classList.remove("error");
+    resultadoTexto.textContent = "Consultando...";
+    detalleTasa.textContent = "Obteniendo el tipo de cambio desde la API.";
+  }
 }
 
 // PISTA PARA EL RETO:
