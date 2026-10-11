@@ -42,8 +42,19 @@ async function convertirMoneda() {
 
     const respuesta = await fetch(url);
 
-    // TODO · MISIÓN 09: comprobar response.ok y lanzar un error si corresponde.
+    // MISIÓN 09: fetch no lanza error con 404 o 500, hay que revisarlo a mano.
+    if (!respuesta.ok) {
+      const fallo = new Error(`HTTP ${respuesta.status}`);
+      fallo.status = respuesta.status;
+      throw fallo;
+    }
+
     const datos = await respuesta.json();
+
+    // MISIÓN 09: comprobar que la API devolvió la tasa esperada.
+    if (typeof datos.rate !== "number") {
+      throw new Error("Respuesta inesperada de la API");
+    }
 
     const conversion = valor * datos.rate;
 
@@ -56,9 +67,17 @@ async function convertirMoneda() {
     detalleTasa.textContent =
       `1 ${monedaOrigen} = ${datos.rate} ${monedaDestino} · Actualizado: ${datos.date}`;
 
-  } catch (error) {
-    // TODO · MISIÓN 09: mejora el mensaje y analiza qué errores pueden llegar aquí.
-    mostrarError("No fue posible completar la consulta.");
+} catch (error) {
+    // MISIÓN 09: se distingue el tipo de fallo para dar un mensaje útil.
+    if (error.status === 404 || error.status === 422) {
+      mostrarError("Esa combinación de monedas no está disponible.");
+    } else if (error.status) {
+      mostrarError(`El servidor respondió con un error (${error.status}). Inténtalo más tarde.`);
+    } else if (error instanceof TypeError) {
+      mostrarError("No hay conexión con el servicio. Revisa tu internet.");
+    } else {
+      mostrarError("No fue posible completar la consulta.");
+    }
     console.error(error);
   } finally {
     // MISIÓN 08: se ejecuta siempre (éxito o error) para reactivar los botones.
