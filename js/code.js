@@ -12,10 +12,13 @@ const btnIntercambiar = document.querySelector("#intercambiar");
 const resultado = document.querySelector("#resultado");
 const resultadoTexto = document.querySelector("#resultadoTexto");
 const detalleTasa = document.querySelector("#detalleTasa");
+const btnHistorico = document.querySelector("#historico");
+const grafica = document.querySelector("#grafica");
 
 // 2. EVENTOS
 btnConvertir.addEventListener("click", convertirMoneda);
 btnIntercambiar.addEventListener("click", intercambiarMonedas);
+btnHistorico.addEventListener("click", consultarHistorico);
 
 // 3. FUNCIÓN PRINCIPAL
 async function convertirMoneda() {
@@ -72,6 +75,77 @@ function intercambiarMonedas() {
   origen.value = destino.value;    // 2) origen toma el valor de destino
   destino.value = temporal;        //    destino toma el valor guardado
   convertirMoneda();               // 3) volver a calcular con las monedas invertidas
+}
+
+// MISIÓN 11: consulta de la serie temporal de los últimos 12 meses.
+async function consultarHistorico() {
+  if (origen.value === destino.value) {
+    grafica.innerHTML = `<p class="estado">Elige dos monedas distintas.</p>`;
+    return;
+  }
+
+  const desde = new Date();
+  desde.setFullYear(desde.getFullYear() - 1);
+  const fechaInicio = desde.toISOString().slice(0, 10);
+
+  const url = `https://api.frankfurter.dev/v2/rates?base=${origen.value}&quotes=${destino.value}&from=${fechaInicio}&group=month`;
+
+  btnHistorico.disabled = true;
+  grafica.innerHTML = `<p class="estado">Consultando...</p>`;
+
+  try {
+    const respuesta = await fetch(url);
+    if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
+
+    const datos = await respuesta.json();
+
+    // La respuesta es un arreglo: un objeto por mes. map() separa los dos ejes.
+    const fechas = datos.map(item => item.date);
+    const tasas = datos.map(item => item.rate);
+
+    if (tasas.length === 0) {
+      grafica.innerHTML = `<p class="estado">No hay datos para ese periodo.</p>`;
+      return;
+    }
+
+    dibujarGrafica(fechas, tasas);
+  } catch (error) {
+    grafica.innerHTML = `<p class="estado">No fue posible cargar el histórico.</p>`;
+    console.error(error);
+  } finally {
+    btnHistorico.disabled = false;
+  }
+}
+
+// MISIÓN 11: dibuja la gráfica de líneas como SVG, sin librerías.
+function dibujarGrafica(fechas, tasas) {
+  const ancho = 600, alto = 260, margen = 45;
+  const min = Math.min(...tasas);
+  const max = Math.max(...tasas);
+  const rango = max - min || 1;
+  const pasos = Math.max(tasas.length - 1, 1);
+
+  const puntos = tasas.map((tasa, i) => {
+    const x = margen + (i / pasos) * (ancho - 2 * margen);
+    const y = alto - margen - ((tasa - min) / rango) * (alto - 2 * margen);
+    return { x, y, tasa, fecha: fechas[i] };
+  });
+
+  const linea = puntos.map(p => `${p.x},${p.y}`).join(" ");
+  const circulos = puntos
+    .map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#16758b"><title>${p.fecha}: ${p.tasa}</title></circle>`)
+    .join("");
+
+  grafica.innerHTML = `
+    <svg viewBox="0 0 ${ancho} ${alto}" role="img"
+         aria-label="Evolución de ${origen.value} a ${destino.value}">
+      <polyline points="${linea}" fill="none" stroke="#16758b" stroke-width="3"/>
+      ${circulos}
+      <text x="${margen}" y="${alto - 15}" font-size="12" fill="#667785">${fechas[0]}</text>
+      <text x="${ancho - margen}" y="${alto - 15}" font-size="12" fill="#667785" text-anchor="end">${fechas[fechas.length - 1]}</text>
+      <text x="5" y="${margen}" font-size="12" fill="#667785">${max}</text>
+      <text x="5" y="${alto - margen}" font-size="12" fill="#667785">${min}</text>
+    </svg>`;
 }
 
 // 4. UTILIDADES DE INTERFAZ
