@@ -24,6 +24,7 @@ Completar una aplicación frontend que consuma Frankfurter API para convertir di
 2. Abre la carpeta en VS Code.
 3. Ejecuta `index.html` con Live Server o un servidor local equivalente.
 4. Abre DevTools → Console y Network para observar el comportamiento.
+5. **Deploy:** https://23031344-gif.github.io/currency-explorer/
 
 ## API
 Endpoint de referencia:
